@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'LXGW WenKai', 'Kaiti SC', 'KaiTi', 'STKaiti', 'Noto Serif SC', serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color: #2C2C2C;
+  background-color: #F5F0E6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+  background-color: #F5F0E6;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(176,151,104,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(200,75,49,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(107,142,35,0.05) 0%, transparent 50%);
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 rounded-lg bg-vermilion-400 text-paper-50 font-song font-semibold
+           transition-all duration-200 ease-out
+           hover:bg-vermilion-500 hover:-translate-y-0.5 hover:shadow-vermilion
+           active:translate-y-0 active:shadow-sm
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-lg border-2 border-ink-400/15 bg-paper-50 text-ink-400 font-song
+           transition-all duration-200 ease-out
+           hover:border-vermilion-400/50 hover:text-vermilion-500 hover:bg-white
+           hover:-translate-y-0.5 hover:shadow-paper
+           active:translate-y-0;
+  }
+
+  .btn-bamboo {
+    @apply px-5 py-2.5 rounded-lg bg-bamboo-400 text-paper-50 font-song
+           transition-all duration-200 ease-out
+           hover:bg-bamboo-500 hover:-translate-y-0.5
+           active:translate-y-0;
+  }
+
+  .card-paper {
+    @apply bg-paper-50 bg-paper-texture rounded-xl border border-paper-200/60
+           shadow-paper;
+  }
+
+  .card-ink {
+    @apply bg-ink-wash rounded-xl border border-ink-400/5 shadow-paper;
+  }
+
+  .input-underline {
+    @apply w-full bg-transparent border-0 border-b-2 border-paper-300/80
+           focus:border-vermilion-400 focus:outline-none
+           px-1 py-2 transition-colors duration-200
+           text-ink-400 placeholder-ink-100 font-kai text-lg;
+  }
+
+  .nav-link {
+    @apply font-song text-ink-200 px-4 py-2 transition-all duration-200
+           relative cursor-pointer select-none
+           hover:text-ink-400;
+  }
+
+  .nav-link-active {
+    @apply text-vermilion-500;
+  }
+
+  .nav-link-active::after {
+    content: '';
+    @apply absolute left-2 right-2 -bottom-0.5 h-0.5 bg-vermilion-400 rounded-full;
+  }
+
+  .stamp-box {
+    position: relative;
+  }
+  .stamp-box::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 2px solid rgba(200, 75, 49, 0.85);
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .stamp-box::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px dashed rgba(200, 75, 49, 0.5);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  .seal-corner {
+    position: relative;
+  }
+  .seal-corner::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
+    border-top: 2px solid #C84B31;
+    border-right: 2px solid #C84B31;
+    opacity: 0.6;
+  }
+  .seal-corner::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -4px;
+    width: 24px;
+    height: 24px;
+    border-bottom: 2px solid #C84B31;
+    border-left: 2px solid #C84B31;
+    opacity: 0.6;
+  }
+}
+
+@layer utilities {
+  .writing-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #C9B48C;
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #B09768;
+  }
+
+  .text-shadow-paper {
+    text-shadow: 0 1px 2px rgba(176,151,104,0.15);
+  }
+}
