@@ -186,7 +186,7 @@ function handleBadgeDismiss() {
                 <div class="p-4 rounded-xl bg-white/60 border border-paper-200/50">
                   <div class="font-song text-xs text-ink-100 mb-1.5">题库规模</div>
                   <div class="font-song font-bold text-2xl text-ink-400 tabular-nums">
-                    {{ game.matcher.totalPoems.toLocaleString() }}
+                    {{ game.matcher.totalPoems.value.toLocaleString() }}
                   </div>
                   <div class="font-kai text-xs text-ink-100 mt-0.5">首古诗词</div>
                 </div>

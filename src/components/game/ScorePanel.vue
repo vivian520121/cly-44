@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Trophy, Zap, Target, BookOpen } from 'lucide-vue-next';
-import { ref, watch, computed, h } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps<{
   score: number;
@@ -15,41 +15,20 @@ function accuracy(correct: number, answered: number): string {
   return Math.round((correct / answered) * 100).toString();
 }
 
-function AnimatedNumber({ value, className }: { value: number | string; className?: string }) {
-  const displayValue = ref(String(value));
-  const animKey = ref(0);
+const scoreKey = ref(0);
+const comboKey = ref(0);
+const accKey = ref(0);
+const correctKey = ref(0);
+const answeredKey = ref(0);
 
-  watch(
-    () => value,
-    (newVal, oldVal) => {
-      if (String(newVal) !== String(oldVal)) {
-        animKey.value++;
-        displayValue.value = String(newVal);
-      }
-    }
-  );
-
-  return () =>
-    h(
-      'span',
-      {
-        class: ['inline-block relative overflow-hidden', className],
-        key: animKey.value,
-      },
-      [
-        h(
-          'span',
-          {
-            class: 'inline-block animate-number-roll',
-            style: { display: 'inline-block' },
-          },
-          displayValue.value
-        ),
-      ]
-    );
-}
+watch(() => props.score, (n, o) => { if (n !== o) scoreKey.value++; });
+watch(() => props.combo, (n, o) => { if (n !== o) comboKey.value++; });
+watch(() => props.correct, (n, o) => { if (n !== o) correctKey.value++; });
+watch(() => props.answered, (n, o) => { if (n !== o) answeredKey.value++; });
 
 const accValue = computed(() => accuracy(props.correct, props.answered));
+
+watch(accValue, (n, o) => { if (n !== o) accKey.value++; });
 </script>
 
 <template>
@@ -71,8 +50,8 @@ const accValue = computed(() => accuracy(props.correct, props.answered));
             <Trophy class="w-4 h-4 text-vermilion-400" />
             <span class="font-song text-xs text-ink-100 tracking-wider">得分数</span>
           </div>
-          <div class="font-song text-3xl md:text-4xl font-black text-ink-400 tabular-nums leading-none perspective-800">
-            <AnimatedNumber :value="score" />
+          <div class="font-song text-3xl md:text-4xl font-black text-ink-400 tabular-nums leading-none perspective-800 inline-block relative overflow-hidden">
+            <span :key="scoreKey" class="inline-block animate-number-roll" style="display: inline-block">{{ score }}</span>
           </div>
         </div>
         <div class="flex flex-col items-center text-center p-2">
@@ -84,10 +63,10 @@ const accValue = computed(() => accuracy(props.correct, props.answered));
             <span class="font-song text-xs text-ink-100 tracking-wider">连击数</span>
           </div>
           <div
-            class="font-song text-3xl md:text-4xl font-black tabular-nums leading-none transition-colors perspective-800"
+            class="font-song text-3xl md:text-4xl font-black tabular-nums leading-none transition-colors perspective-800 inline-block relative overflow-hidden"
             :class="combo >= 3 ? 'text-vermilion-500 combo-score-text' : 'text-ink-400'"
           >
-            <AnimatedNumber :value="combo" />
+            <span :key="comboKey" class="inline-block animate-number-roll" style="display: inline-block">{{ combo }}</span>
           </div>
         </div>
         <div class="flex flex-col items-center text-center p-2">
@@ -95,8 +74,8 @@ const accValue = computed(() => accuracy(props.correct, props.answered));
             <Target class="w-4 h-4 text-bamboo-400" />
             <span class="font-song text-xs text-ink-100 tracking-wider">正确率</span>
           </div>
-          <div class="font-song text-3xl md:text-4xl font-black text-ink-400 tabular-nums leading-none perspective-800">
-            <AnimatedNumber :value="accValue" /><span class="text-lg font-semibold ml-0.5 text-ink-100">%</span>
+          <div class="font-song text-3xl md:text-4xl font-black text-ink-400 tabular-nums leading-none perspective-800 inline-block relative overflow-hidden">
+            <span :key="accKey" class="inline-block animate-number-roll" style="display: inline-block">{{ accValue }}</span><span class="text-lg font-semibold ml-0.5 text-ink-100">%</span>
           </div>
         </div>
         <div class="flex flex-col items-center text-center p-2">
@@ -104,8 +83,8 @@ const accValue = computed(() => accuracy(props.correct, props.answered));
             <BookOpen class="w-4 h-4 text-ink-200" />
             <span class="font-song text-xs text-ink-100 tracking-wider">题次</span>
           </div>
-          <div class="font-song text-3xl md:text-4xl font-black text-ink-400 tabular-nums leading-none perspective-800">
-            <AnimatedNumber :value="correct" /><span class="text-lg font-semibold mx-0.5 text-ink-100">/</span><AnimatedNumber :value="answered" />
+          <div class="font-song text-3xl md:text-4xl font-black text-ink-400 tabular-nums leading-none perspective-800 inline-block relative overflow-hidden">
+            <span :key="correctKey" class="inline-block animate-number-roll" style="display: inline-block">{{ correct }}</span><span class="text-lg font-semibold mx-0.5 text-ink-100">/</span><span :key="answeredKey" class="inline-block animate-number-roll" style="display: inline-block">{{ answered }}</span>
           </div>
         </div>
       </div>
