@@ -10,10 +10,10 @@ const props = defineProps<{
   critical?: boolean;
 }>();
 
-const barColor = computed(() => {
-  if (props.critical) return 'from-vermilion-500 via-vermilion-400 to-vermilion-300';
-  if (props.urgent) return 'from-vermilion-400 via-vermilion-300 to-paper-400';
-  return 'from-bamboo-400 via-bamboo-300 to-paper-400';
+const barClass = computed(() => {
+  if (props.critical) return 'timer-critical-fill';
+  if (props.urgent) return 'timer-vermilion-fill';
+  return 'bg-gradient-to-r from-bamboo-400 via-bamboo-300 to-paper-400';
 });
 
 const textColor = computed(() => {
@@ -31,7 +31,7 @@ const textColor = computed(() => {
           class="w-4 h-4 transition-colors duration-300"
           :class="[
             textColor,
-            critical ? 'animate-shimmer' : ''
+            critical ? 'animate-urgent-blink' : ''
           ]"
         />
         <span class="font-song text-sm text-ink-200">余时</span>
@@ -41,7 +41,7 @@ const textColor = computed(() => {
           class="font-song font-bold text-2xl tabular-nums transition-colors duration-300"
           :class="[
             textColor,
-            critical ? 'animate-shimmer' : ''
+            critical ? 'animate-urgent-blink combo-score-text' : ''
           ]"
         >
           {{ String(remaining).padStart(2, '0') }}
@@ -49,16 +49,26 @@ const textColor = computed(() => {
         <span class="font-song text-xs text-ink-100">/ {{ total }}秒</span>
       </div>
     </div>
-    <div class="relative w-full h-2.5 rounded-full bg-paper-200/60 overflow-hidden">
+    <div
+      class="relative w-full h-3 rounded-full bg-paper-200/60 overflow-hidden shadow-inner"
+      :class="critical ? 'ring-2 ring-vermilion-400/30 animate-urgent-blink' : ''"
+    >
       <div
-        class="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-1000 ease-linear"
-        :class="[
-          barColor,
-          critical ? 'animate-shimmer' : ''
-        ]"
+        class="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-linear"
+        :class="[barClass]"
         :style="{ width: `${progress}%` }"
       >
-        <div class="absolute inset-0 bg-white/20 blur-[1px]"></div>
+        <div class="absolute inset-0 bg-white/15 blur-[1px]"></div>
+        <div
+          v-if="critical"
+          class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"
+        ></div>
+      </div>
+      <div
+        v-if="critical"
+        class="absolute inset-0 pointer-events-none"
+      >
+        <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-transparent via-vermilion-300 to-transparent opacity-60 animate-shimmer" :style="{ left: `${Math.min(progress, 98)}%` }"></div>
       </div>
     </div>
   </div>

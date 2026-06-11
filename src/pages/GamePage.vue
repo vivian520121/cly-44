@@ -15,6 +15,8 @@ const game = useGame();
 const inputValue = ref('');
 const showEndModal = ref(false);
 const lastAnsweredChar = ref('');
+const transitionKey = ref(0);
+const showInkTransition = ref(false);
 
 const isIdle = computed(() => game.state.status === 'idle');
 const isPlaying = computed(() => game.state.status === 'playing');
@@ -22,9 +24,18 @@ const isEnded = computed(() => game.state.status === 'ended');
 
 watch(
   () => game.state.status,
-  (s) => {
-    if (s === 'ended') {
-      showEndModal.value = true;
+  (newStatus, oldStatus) => {
+    if (newStatus !== oldStatus) {
+      showInkTransition.value = true;
+      transitionKey.value++;
+      setTimeout(() => {
+        showInkTransition.value = false;
+      }, 750);
+    }
+    if (newStatus === 'ended') {
+      setTimeout(() => {
+        showEndModal.value = true;
+      }, 300);
     }
   }
 );
@@ -93,11 +104,26 @@ function handleSkip() {
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen relative">
     <NavBar />
 
-    <main class="container mx-auto px-4 py-6 md:py-10 max-w-5xl">
-      <div v-if="isIdle" class="max-w-3xl mx-auto animate-fade-in-up">
+    <Transition
+      enter-active-class="transition-opacity duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-500"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showInkTransition"
+        :key="transitionKey"
+        class="ink-transition-sweep"
+      ></div>
+    </Transition>
+
+    <main class="container mx-auto px-4 py-6 md:py-10 max-w-5xl relative z-10">
+      <div v-if="isIdle" :key="'idle-' + transitionKey" class="max-w-3xl mx-auto animate-ink-wash-reveal">
         <InkBorder>
           <div class="bg-paper-50 bg-paper-texture rounded-2xl p-8 md:p-12 text-center relative overflow-hidden">
             <div class="absolute top-6 right-6 opacity-20 font-song text-9xl font-black text-vermilion-400 select-none">
@@ -182,7 +208,7 @@ function handleSkip() {
         </InkBorder>
       </div>
 
-      <div v-else-if="isPlaying" class="space-y-6 animate-fade-in">
+      <div v-else-if="isPlaying" :key="'playing-' + transitionKey" class="space-y-6 animate-ink-wash-reveal">
         <ScorePanel
           :score="game.state.score"
           :combo="game.state.combo"
@@ -216,6 +242,7 @@ function handleSkip() {
                 :type="game.feedback.value.type"
                 :message="game.feedback.value.message"
                 :score-delta="game.feedback.value.scoreDelta"
+                :combo="game.state.combo"
                 :details="game.feedback.value.details"
               />
 
@@ -316,7 +343,7 @@ function handleSkip() {
         </div>
       </div>
 
-      <div v-else-if="isEnded" class="max-w-2xl mx-auto animate-scale-in">
+      <div v-else-if="isEnded" :key="'ended-' + transitionKey" class="max-w-2xl mx-auto animate-ink-wash-reveal">
         <div class="text-center">
           <div class="font-kai text-ink-100 text-sm tracking-[0.3em] mb-4">— 本局终了 —</div>
           <div class="font-song font-black text-6xl md:text-8xl text-vermilion-500 mb-2 tabular-nums">
