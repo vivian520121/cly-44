@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Feather, Scroll } from 'lucide-vue-next';
+import { Feather, Scroll, Bookmark } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
 
 const navItems = [
   { path: '/game', name: '飞花令', icon: Feather },
+  { path: '/collection', name: '收藏集', icon: Bookmark },
   { path: '/history', name: '对局录', icon: Scroll },
 ];
 

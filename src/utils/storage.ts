@@ -46,3 +46,4 @@ export const HISTORY_KEY = 'game_history';
 export const RECENT_CHARS_KEY = 'recent_chars';
 export const BEST_SCORE_KEY = 'best_score';
 export const ACHIEVEMENTS_KEY = 'achievements';
+export const COLLECTION_KEY = 'collection';

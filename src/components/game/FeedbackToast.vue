@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { CheckCircle, XCircle, AlertTriangle, Lightbulb, Clock, ArrowRight, Flame } from 'lucide-vue-next';
+import { CheckCircle, XCircle, AlertTriangle, Lightbulb, Clock, ArrowRight, Flame, Bookmark, BookmarkCheck } from 'lucide-vue-next';
 import { watch, ref, computed } from 'vue';
+import { useCollection } from '@/composables/useCollection';
 
 const props = defineProps<{
   type: 'correct' | 'wrong' | 'hint' | 'timeout' | null;
@@ -12,8 +13,19 @@ const props = defineProps<{
     author?: string;
     dynasty?: string;
     sentence?: string;
+    poemId?: number;
   };
 }>();
+
+const collection = useCollection();
+
+const canCollect = computed(() =>
+  props.type === 'correct' && props.details?.poemId != null
+);
+
+const isCollected = computed(() =>
+  props.details?.poemId != null && collection.isCollected(props.details.poemId)
+);
 
 const visible = ref(false);
 const key = ref(0);
@@ -229,6 +241,19 @@ const styleMap = {
                   <span class="text-ink-200">{{ details.author }}</span>
                 </template>
               </div>
+              <button
+                v-if="canCollect"
+                type="button"
+                @click.stop="details?.poemId != null && collection.toggle(details.poemId)"
+                class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-song transition-all duration-200 hover:-translate-y-0.5"
+                :class="isCollected
+                  ? 'bg-vermilion-50 border border-vermilion-200/60 text-vermilion-500'
+                  : 'bg-paper-50 border border-paper-200/60 text-ink-200 hover:text-vermilion-500 hover:border-vermilion-200/60'"
+              >
+                <BookmarkCheck v-if="isCollected" class="w-3.5 h-3.5" />
+                <Bookmark v-else class="w-3.5 h-3.5" />
+                {{ isCollected ? '已收藏' : '收藏' }}
+              </button>
             </div>
           </div>
         </div>

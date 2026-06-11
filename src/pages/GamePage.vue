@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import { Play, RotateCcw, ArrowRight, Flag, Info, Sparkles } from 'lucide-vue-next';
 import { useGame } from '@/composables/useGame';
 import NavBar from '@/components/layout/NavBar.vue';
@@ -14,6 +15,7 @@ import AchievementBadge from '@/components/game/AchievementBadge.vue';
 import type { Achievement } from '@/types';
 
 const game = useGame();
+const router = useRouter();
 const currentBadge = ref<Achievement | null>(null);
 const showBadge = ref(false);
 const inputValue = ref('');
@@ -218,7 +220,7 @@ function handleBadgeDismiss() {
                 </button>
                 <button
                   type="button"
-                  router-link="/history"
+                  @click="router.push('/history')"
                   class="btn-secondary px-8 py-4 flex items-center gap-3"
                 >
                   <Info class="w-5 h-5" />
@@ -393,7 +395,7 @@ function handleBadgeDismiss() {
               <RotateCcw class="w-5 h-5" />
               <span>再来一局</span>
             </button>
-            <button type="button" router-link="/history" class="btn-secondary px-8 py-3.5 flex items-center gap-2">
+            <button type="button" @click="router.push('/history')" class="btn-secondary px-8 py-3.5 flex items-center gap-2">
               <Info class="w-5 h-5" />
               <span>查看记录</span>
             </button>

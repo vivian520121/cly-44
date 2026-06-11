@@ -32,7 +32,7 @@ export function useGame() {
     type: 'correct' | 'wrong' | 'hint' | 'timeout' | null;
     message: string;
     scoreDelta: number;
-    details?: { title?: string; author?: string; dynasty?: string; sentence?: string };
+    details?: { title?: string; author?: string; dynasty?: string; sentence?: string; poemId?: number };
   }>({ type: null, message: '', scoreDelta: 0 });
 
   const typoSuggestion = ref<TypoSuggestion | null>(null);
@@ -196,6 +196,7 @@ export function useGame() {
           author: match.poemAuthor,
           dynasty: match.poemDynasty,
           sentence: match.sentence,
+          poemId: match.poemId,
         },
       };
     } else {
