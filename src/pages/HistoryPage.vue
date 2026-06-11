@@ -4,10 +4,13 @@ import { useHistory } from '@/composables/useHistory';
 import NavBar from '@/components/layout/NavBar.vue';
 import RecordCard from '@/components/history/RecordCard.vue';
 import AnswerDetail from '@/components/history/AnswerDetail.vue';
-import { Trophy, Target, Zap, Gamepad2, Trash2, Inbox, Sparkles } from 'lucide-vue-next';
+import InsightTab from '@/components/history/InsightTab.vue';
+import { Trophy, Target, Zap, Gamepad2, Trash2, Inbox, Sparkles, Scroll, BarChart3 } from 'lucide-vue-next';
 import type { GameRecord } from '@/types';
 
 const history = useHistory();
+
+const activeTab = ref<'records' | 'insight'>('records');
 
 const selectedId = ref<string | null>(null);
 
@@ -209,15 +212,55 @@ const avgAccPct = computed(() => Math.round(history.averageAccuracy.value * 100)
         </button>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fade-in-up">
-        <RecordCard
-          v-for="(record, idx) in sortedRecords"
-          :key="record.id"
-          :record="record"
-          :rank="undefined"
-          @view="handleView"
-          @delete="handleDelete"
-        />
+      <div v-else>
+        <div class="flex items-center gap-1 mb-6 p-1 bg-paper-100 rounded-xl border border-paper-200/50 w-fit">
+          <button
+            type="button"
+            @click="activeTab = 'records'"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-lg font-song text-sm transition-all duration-200"
+            :class="activeTab === 'records'
+              ? 'bg-paper-50 text-ink-400 shadow-paper border border-paper-200/60'
+              : 'text-ink-200 hover:text-ink-300 border border-transparent'"
+          >
+            <Scroll class="w-4 h-4" />
+            <span>对局记录</span>
+          </button>
+          <button
+            type="button"
+            @click="activeTab = 'insight'"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-lg font-song text-sm transition-all duration-200"
+            :class="activeTab === 'insight'
+              ? 'bg-paper-50 text-ink-400 shadow-paper border border-paper-200/60'
+              : 'text-ink-200 hover:text-ink-300 border border-transparent'"
+          >
+            <BarChart3 class="w-4 h-4" />
+            <span>学情洞察</span>
+          </button>
+        </div>
+
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+          mode="out-in"
+        >
+          <div v-if="activeTab === 'records'" key="records" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <RecordCard
+              v-for="(record, idx) in sortedRecords"
+              :key="record.id"
+              :record="record"
+              :rank="undefined"
+              @view="handleView"
+              @delete="handleDelete"
+            />
+          </div>
+          <div v-else key="insight">
+            <InsightTab />
+          </div>
+        </Transition>
       </div>
     </main>
 
