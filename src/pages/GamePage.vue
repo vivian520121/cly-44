@@ -10,8 +10,12 @@ import TimerBar from '@/components/game/TimerBar.vue';
 import ScorePanel from '@/components/game/ScorePanel.vue';
 import HintButton from '@/components/game/HintButton.vue';
 import FeedbackToast from '@/components/game/FeedbackToast.vue';
+import AchievementBadge from '@/components/game/AchievementBadge.vue';
+import type { Achievement } from '@/types';
 
 const game = useGame();
+const currentBadge = ref<Achievement | null>(null);
+const showBadge = ref(false);
 const inputValue = ref('');
 const showEndModal = ref(false);
 const lastAnsweredChar = ref('');
@@ -100,6 +104,38 @@ function handleSkip() {
   setTimeout(() => {
     game.nextQuestion();
   }, 1500);
+}
+
+function processBadgeQueue() {
+  if (showBadge.value) return;
+  const next = game.achievements.getNextBadge();
+  if (next) {
+    currentBadge.value = next;
+    showBadge.value = true;
+  }
+}
+
+watch(
+  () => game.achievements.unlockedQueue.value.length,
+  () => {
+    processBadgeQueue();
+  }
+);
+
+watch(
+  () => game.achievements.isShowingBadge.value,
+  (showing) => {
+    if (!showing && !showBadge.value) {
+      setTimeout(processBadgeQueue, 300);
+    }
+  }
+);
+
+function handleBadgeDismiss() {
+  showBadge.value = false;
+  currentBadge.value = null;
+  game.achievements.dismissBadge();
+  setTimeout(processBadgeQueue, 500);
 }
 </script>
 
@@ -413,5 +449,11 @@ function handleSkip() {
         诗词飞花令 · 传承千古文脉 · 共赏雅韵流芳
       </p>
     </footer>
+
+    <AchievementBadge
+      :achievement="currentBadge"
+      :visible="showBadge"
+      @dismiss="handleBadgeDismiss"
+    />
   </div>
 </template>

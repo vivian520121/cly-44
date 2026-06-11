@@ -3,6 +3,7 @@ import { useTimer } from './useTimer';
 import { usePoemMatcher } from './usePoemMatcher';
 import { useTypoCorrection } from './useTypoCorrection';
 import { useHistory } from './useHistory';
+import { useAchievements } from './useAchievements';
 import type { GameState, AnswerRecord, HintLevel, MatchResult, TypoSuggestion } from '@/types';
 import { storageGet, storageSet, RECENT_CHARS_KEY } from '@/utils/storage';
 
@@ -20,6 +21,7 @@ export function useGame() {
   const matcher = usePoemMatcher();
   const corrector = useTypoCorrection();
   const historyStore = useHistory();
+  const achievements = useAchievements();
   const timer = useTimer({
     initialSeconds: QUESTION_TIME,
     autoStart: false,
@@ -215,6 +217,11 @@ export function useGame() {
     state.totalTime += timeSpent;
     state.answers.push(answer);
 
+    achievements.recordAnswer(answer);
+    if (state.combo > 0) {
+      achievements.recordCombo(state.combo);
+    }
+
     return { success: match.isMatch, corrected: correctedInput };
   }
 
@@ -236,6 +243,8 @@ export function useGame() {
     state.answeredCount += 1;
     state.totalTime += timeSpent;
     state.answers.push(answer);
+
+    achievements.recordAnswer(answer);
 
     const hintSentence = matcher.getHintSentence(state.currentChar);
     feedback.value = {
@@ -260,6 +269,7 @@ export function useGame() {
       state.maxCombo,
       startTime.value
     );
+    achievements.recordGameEnd(state.answers, state.maxCombo);
   }
 
   function resetGame() {
@@ -290,6 +300,7 @@ export function useGame() {
     matchDebug,
     accuracy,
     history: historyStore,
+    achievements,
     matcher,
     startGame,
     nextQuestion,

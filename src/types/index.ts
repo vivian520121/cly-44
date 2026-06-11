@@ -2,6 +2,37 @@ export type { Poem } from '../data/types';
 
 export type GameStatus = 'idle' | 'playing' | 'paused' | 'ended';
 
+export type AchievementTier = 'bronze' | 'silver' | 'gold' | 'diamond';
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  tier: AchievementTier;
+  icon: string;
+  unlockedAt?: number;
+}
+
+export interface AchievementState {
+  unlocked: Record<string, Achievement>;
+  stats: AchievementStats;
+}
+
+export interface AchievementStats {
+  totalCorrect: number;
+  totalGames: number;
+  totalCombo: number;
+  maxComboEver: number;
+  totalHintsUsed: number;
+  gamesNoHints: number;
+  perfectGames: number;
+  currentStreak: number;
+  longestStreak: number;
+  uniquePoems: number;
+  uniqueDynasties: string[];
+  uniqueAuthors: string[];
+}
+
 export type HintLevel = 'none' | 'char' | 'sentence';
 
 export interface AnswerRecord {
