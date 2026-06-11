@@ -4,6 +4,7 @@ import { usePoemMatcher } from './usePoemMatcher';
 import { useTypoCorrection } from './useTypoCorrection';
 import { useHistory } from './useHistory';
 import { useAchievements } from './useAchievements';
+import { useTypoBook } from './useTypoBook';
 import type { GameState, AnswerRecord, HintLevel, MatchResult, TypoSuggestion } from '@/types';
 import { storageGet, storageSet, RECENT_CHARS_KEY } from '@/utils/storage';
 
@@ -22,6 +23,7 @@ export function useGame() {
   const corrector = useTypoCorrection();
   const historyStore = useHistory();
   const achievements = useAchievements();
+  const typoBook = useTypoBook();
   const timer = useTimer({
     initialSeconds: QUESTION_TIME,
     autoStart: false,
@@ -58,17 +60,20 @@ export function useGame() {
   });
 
   const startTime = ref<number>(0);
+  const practiceChar = ref<string | null>(null);
 
   const accuracy = computed(() => {
     if (state.answeredCount === 0) return 0;
     return state.correctCount / state.answeredCount;
   });
 
+  const isPracticeMode = computed(() => practiceChar.value !== null);
+
   watch(timer.remaining, (v) => {
     state.timeLeft = v;
   });
 
-  function startGame() {
+  function startGame(options?: { practiceChar?: string }) {
     state.status = 'playing';
     state.score = 0;
     state.combo = 0;
@@ -78,21 +83,28 @@ export function useGame() {
     state.totalTime = 0;
     state.hintsUsed = 0;
     state.answers = [];
+    practiceChar.value = options?.practiceChar || null;
     startTime.value = Date.now();
     nextQuestion();
   }
 
   function nextQuestion() {
-    state.currentChar = matcher.getRandomChar(state.recentChars);
+    if (practiceChar.value) {
+      state.currentChar = practiceChar.value;
+    } else {
+      state.currentChar = matcher.getRandomChar(state.recentChars);
+    }
     state.currentHintLevel = 'none';
     state.charHint = '';
     state.sentenceHint = '';
     state.questionStartTime = Date.now();
-    state.recentChars.push(state.currentChar);
-    if (state.recentChars.length > MAX_RECENT_CHARS) {
-      state.recentChars.shift();
+    if (!practiceChar.value) {
+      state.recentChars.push(state.currentChar);
+      if (state.recentChars.length > MAX_RECENT_CHARS) {
+        state.recentChars.shift();
+      }
+      storageSet(RECENT_CHARS_KEY, state.recentChars);
     }
-    storageSet(RECENT_CHARS_KEY, state.recentChars);
     typoSuggestion.value = null;
     feedback.value = { type: null, message: '', scoreDelta: 0 };
     timer.start(QUESTION_TIME);
@@ -223,6 +235,9 @@ export function useGame() {
       achievements.recordCombo(state.combo);
     }
 
+    const wasCorrected = suggestion !== null && suggestion.autoCorrect && suggestion.distance > 0;
+    typoBook.recordFromAnswer(answer, wasCorrected);
+
     return { success: match.isMatch, corrected: correctedInput };
   }
 
@@ -246,6 +261,7 @@ export function useGame() {
     state.answers.push(answer);
 
     achievements.recordAnswer(answer);
+    typoBook.recordFromAnswer(answer, false);
 
     const hintSentence = matcher.getHintSentence(state.currentChar);
     feedback.value = {
@@ -303,6 +319,9 @@ export function useGame() {
     history: historyStore,
     achievements,
     matcher,
+    typoBook,
+    isPracticeMode,
+    practiceChar,
     startGame,
     nextQuestion,
     submitAnswer,

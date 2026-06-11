@@ -99,3 +99,31 @@ export interface MatchResult {
   isFuzzy?: boolean;
   fuzzyDistance?: number;
 }
+
+export interface TypoEntry {
+  id: string;
+  targetChar: string;
+  userInput: string;
+  correctedInput?: string;
+  wasAutoCorrected: boolean;
+  matchedSentence?: string;
+  matchedPoemId?: number;
+  matchedPoemTitle?: string;
+  matchedPoemAuthor?: string;
+  matchedPoemDynasty?: string;
+  hintUsed: HintLevel;
+  scoreChange: number;
+  timestamp: number;
+  gameId?: string;
+}
+
+export interface TypoCharStats {
+  char: string;
+  totalErrors: number;
+  lastErrorAt: number;
+  entries: TypoEntry[];
+}
+
+export interface TypoBookState {
+  entries: TypoEntry[];
+}

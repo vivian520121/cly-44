@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useHistory } from '@/composables/useHistory';
+import { useTypoBook } from '@/composables/useTypoBook';
+import { useRouter } from 'vue-router';
 import NavBar from '@/components/layout/NavBar.vue';
 import RecordCard from '@/components/history/RecordCard.vue';
 import AnswerDetail from '@/components/history/AnswerDetail.vue';
 import InsightTab from '@/components/history/InsightTab.vue';
-import { Trophy, Target, Zap, Gamepad2, Trash2, Inbox, Sparkles, Scroll, BarChart3 } from 'lucide-vue-next';
+import { Trophy, Target, Zap, Gamepad2, Trash2, Inbox, Sparkles, Scroll, BarChart3, AlertCircle, BookOpen } from 'lucide-vue-next';
 import type { GameRecord } from '@/types';
 
 const history = useHistory();
+const typoBook = useTypoBook();
+const router = useRouter();
 
 const activeTab = ref<'records' | 'insight'>('records');
 
@@ -151,6 +155,40 @@ const avgAccPct = computed(() => Math.round(history.averageAccuracy.value * 100)
             </div>
             <div class="font-kai text-xs text-ink-100 mt-2">分</div>
             <div class="absolute -right-4 -top-4 w-20 h-20 bg-ink-400/5 rounded-full"></div>
+          </div>
+        </div>
+
+        <div class="mt-6 animate-fade-in-up">
+          <div
+            class="card-paper p-5 md:p-6 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-paper group relative overflow-hidden"
+            @click="router.push('/typo-book')"
+          >
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-gradient-to-br from-vermilion-100/50 to-transparent rounded-full opacity-60"></div>
+            <div class="relative z-10 flex items-center gap-4 md:gap-6">
+              <div class="shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-vermilion-50 to-vermilion-100 border-2 border-vermilion-200/60 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
+                <AlertCircle class="w-7 h-7 md:w-8 md:h-8 text-vermilion-500" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                  <h3 class="font-song font-bold text-xl md:text-2xl text-ink-400">
+                    错字本
+                  </h3>
+                  <span class="px-2 py-0.5 rounded-full bg-vermilion-400/10 text-vermilion-500 font-song text-xs font-bold">
+                    {{ typoBook.totalEntries.value }} 条记录
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full bg-paper-200/60 text-ink-200 font-song text-xs">
+                    {{ typoBook.uniqueChars.value }} 个令字
+                  </span>
+                </div>
+                <p class="font-kai text-sm md:text-base text-ink-200">
+                  自动记录答错与修正的题目，按字复习，支持专项练习
+                </p>
+              </div>
+              <div class="shrink-0 hidden sm:flex items-center gap-1 font-song text-sm text-vermilion-500 group-hover:gap-2 transition-all duration-300">
+                <span>查看详情</span>
+                <BookOpen class="w-4 h-4" />
+              </div>
+            </div>
           </div>
         </div>
 

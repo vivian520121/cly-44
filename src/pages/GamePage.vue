@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
-import { Play, RotateCcw, ArrowRight, Flag, Info, Sparkles } from 'lucide-vue-next';
+import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { Play, RotateCcw, ArrowRight, Flag, Info, Sparkles, AlertCircle } from 'lucide-vue-next';
 import { useGame } from '@/composables/useGame';
 import NavBar from '@/components/layout/NavBar.vue';
 import InkBorder from '@/components/layout/InkBorder.vue';
@@ -14,8 +14,13 @@ import FeedbackToast from '@/components/game/FeedbackToast.vue';
 import AchievementBadge from '@/components/game/AchievementBadge.vue';
 import type { Achievement } from '@/types';
 
+const props = defineProps<{
+  practiceChar?: string;
+}>();
+
 const game = useGame();
 const router = useRouter();
+const route = useRoute();
 const currentBadge = ref<Achievement | null>(null);
 const showBadge = ref(false);
 const inputValue = ref('');
@@ -23,6 +28,15 @@ const showEndModal = ref(false);
 const lastAnsweredChar = ref('');
 const transitionKey = ref(0);
 const showInkTransition = ref(false);
+const practiceModeChar = ref<string | null>(null);
+
+onMounted(() => {
+  if (props.practiceChar) {
+    practiceModeChar.value = props.practiceChar;
+  } else if (route.query.practiceChar && typeof route.query.practiceChar === 'string') {
+    practiceModeChar.value = route.query.practiceChar;
+  }
+});
 
 const isIdle = computed(() => game.state.status === 'idle');
 const isPlaying = computed(() => game.state.status === 'playing');
@@ -72,7 +86,11 @@ watch(
 );
 
 function handleStart() {
-  game.startGame();
+  if (practiceModeChar.value) {
+    game.startGame({ practiceChar: practiceModeChar.value });
+  } else {
+    game.startGame();
+  }
 }
 
 function handleSubmit(val: string) {
@@ -93,10 +111,17 @@ function handleEndGame() {
 function handleRestart() {
   showEndModal.value = false;
   game.resetGame();
+  practiceModeChar.value = null;
 }
 
 function handleContinue() {
   showEndModal.value = false;
+  game.resetGame();
+  practiceModeChar.value = null;
+}
+
+function handleExitPractice() {
+  practiceModeChar.value = null;
   game.resetGame();
 }
 
@@ -161,6 +186,74 @@ function handleBadgeDismiss() {
     </Transition>
 
     <main class="container mx-auto px-4 py-6 md:py-10 max-w-5xl relative z-10">
+      <Transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-2"
+      >
+        <div
+          v-if="practiceModeChar && isIdle"
+          class="mb-6 p-4 rounded-xl bg-amber-50 border-2 border-amber-300/60 flex items-start gap-3 animate-fade-in"
+        >
+          <div class="shrink-0 w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center">
+            <AlertCircle class="w-5 h-5 text-amber-600" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-song font-bold text-amber-700 text-base mb-1">
+              错字专项练习模式
+            </div>
+            <div class="font-kai text-amber-600 text-sm leading-relaxed">
+              当前针对令字
+              <span class="font-song font-black text-vermilion-500 text-xl mx-1 px-2 py-0.5 rounded bg-white/70 border border-amber-200/70">
+                {{ practiceModeChar }}
+              </span>
+              进行专项复习，所有题目均使用此字。
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="handleExitPractice"
+            class="shrink-0 px-3 py-1.5 rounded-lg bg-white/80 border border-amber-300/60 text-amber-600 font-song text-xs
+                   hover:bg-white hover:border-amber-400 transition-all duration-200"
+          >
+            退出练习
+          </button>
+        </div>
+      </Transition>
+
+      <Transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-2"
+      >
+        <div
+          v-if="game.isPracticeMode.value && isPlaying"
+          class="mb-6 p-3 rounded-xl bg-amber-50/90 backdrop-blur border border-amber-200/70 flex items-center justify-between gap-3 animate-fade-in"
+        >
+          <div class="flex items-center gap-2">
+            <AlertCircle class="w-4 h-4 text-amber-500 shrink-0" />
+            <span class="font-song text-sm text-amber-700">
+              专项练习模式 · 令字：
+              <span class="font-black text-vermilion-500 text-lg ml-1">{{ game.practiceChar.value }}</span>
+            </span>
+          </div>
+          <button
+            type="button"
+            @click="handleExitPractice"
+            class="px-3 py-1 rounded-lg bg-white/80 border border-amber-300/60 text-amber-600 font-song text-xs
+                   hover:bg-white hover:border-amber-400 transition-all duration-200"
+          >
+            退出练习
+          </button>
+        </div>
+      </Transition>
+
       <div v-if="isIdle" :key="'idle-' + transitionKey" class="max-w-3xl mx-auto animate-ink-wash-reveal">
         <InkBorder>
           <div class="bg-paper-50 bg-paper-texture rounded-2xl p-8 md:p-12 text-center relative overflow-hidden">
